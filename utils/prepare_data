@@ -1,0 +1,20 @@
+import os
+import shutil
+from zipfile import ZipFile
+
+def prepare_tiny_imagenet(zip_path='/content/drive/MyDrive/datasets/tiny-imagenet-200.zip', extract_dir='/dataset'):
+    with ZipFile(zip_path, "r") as zip_file:
+        zip_file.extractall(extract_dir)
+
+    val_dir = f'{extract_dir}/tiny-imagenet-200/val'
+    with open(f'{val_dir}/val_annotations.txt') as f:
+        for line in f:
+            fn, cls, *_ = line.split('\t')
+            os.makedirs(f'{val_dir}/{cls}', exist_ok=True)
+            shutil.copyfile(f'{val_dir}/images/{fn}', f'{val_dir}/{cls}/{fn}')
+
+    shutil.rmtree(f'{val_dir}/images')
+    print('Dataset extraction and val split formatting complete!')
+
+if __name__ == '__main__':
+    prepare_tiny_imagenet()
